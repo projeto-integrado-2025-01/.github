@@ -68,3 +68,5 @@ Salvamos essa planilha no AWS S3 e processamos posteriormente no serviço Wallet
 - Docker
 - Kubernetes
 - AWS (S3, EKS)
+- Keycloak
+- Kong API Gateway
