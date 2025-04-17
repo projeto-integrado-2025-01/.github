@@ -13,7 +13,7 @@ Professor:
 ### Proposta do projeto:  
 Vamos implementar um sistema de pagamentos, responsável, principalmente, por realizar transações pix.  
 Nosso sistema irá se integrar com um Gateway de Pagamentos (Asaas, Efí, etc) e criar uma "Conta Bolsão", que basicamente é uma conta do nosso sistema no gateway. Quando novos clientes se cadastrarem em nosso sistema, suas contas só existirão dentro do nosso contexto, e todas as transações efetuadas serão transacionadas a partir da conta bolsão.  
-A ideia é economizar custos com a infraestrutura do Gateway, já que os clientes do nosso sistema são transparentes para eles.
+A ideia é economizar custos com a infraestrutura do Gateway, já que os clientes do nosso sistema são transparentes para eles.  
 A seguir, o diagrama básico da arquitetura:
 <div align="center">
   <img src="./img/arquitetura.png" width="800px" height:"317" />
@@ -48,17 +48,19 @@ Serviço responsável por consumir e apresentar as funcionalidades aos usuários
 
 ## Funcionamento Geral
 ### Transações Simples
-- Os usuários informam ao sistema o valor e a chave pix de destino. 
+- Usuário informa ao sistema o valor da transação e a chave pix de destino. 
 - Requisição é recebida no serviço Wallet-core e a informações são tratadas e validadas.
 - Caso o usuário possa prosseguir com a transação, enviamos os dados para o RabbitMQ
-- O serviço Wallet-transaction irá processar essa transação, comunicando diretamente com o Gateway.  
-- Recebemos a confirmação da transação em um callback, e o serviço Wallet-transaction envia a confirmação novamente para o RabbitMQ
-- O serviço Wallet-core confirma a transação e envia as informações de saldo atualizadas para o RabbitMq
-- O serviço Wallet-balance irá atualizar os saldos envolvidos na transação
+- Serviço Wallet-transaction irá processar essa transação, comunicando diretamente com o Gateway.  
+- Confirmação da transação é recebida em um webhook do serviço Wallet-transaction, que envia a confirmação novamente para o RabbitMQ
+- Serviço Wallet-core confirma a transação e envia as informações da transação para o RabbitMQ
+- Serviço Wallet-balance irá atualizar os saldos das contas envolvidas na transação
 
 ### Transações em lote
 A dinâmica de funcionamento é basicamente a mesma. A diferença é que aqui os usuários informam uma planilha com as informações de valor e pix de destino.  
-Salvamos essa planilha no AWS S3 e processamos posteriormente no serviço Wallet-transaction
+Salvamos essa planilha no AWS S3 e processamos posteriormente no serviço Wallet-transaction  
+
+A proposta é fazer o processamento assíncrono em todas as etapas de uma transação.
 
 ## Stack
 - React
